@@ -121,6 +121,7 @@ df.columns = ['name', 'summary_rez', 'comp_stat', 'team_name', 'team_memb', 'rez
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import math
 
 df2 = pd.read_csv("train_dataset_Росатом/Участники.csv")
 #меняем значение в перемнной образование по словарю
@@ -160,16 +161,14 @@ n = 1 + 3.322*np.log10(result1["Текущий возраст"].count())
 n = int(n)
 h = (result1["Текущий возраст"].max() - result1["Текущий возраст"].min())/n
 x = result1["Текущий возраст"].min()
-#создаем словарь с значениями границ интервалов
-intervals = {}
+#создаем интервалы и обозначения для них
+bins = []
 for i in range(n):
     first = x
     second = x + h
-    data = [first, second]
-    intervals[i] = data
+    bins.append(math.ceil(x))
     x = second
-#создаем интервалы и обозначения для них
-bins = np.arange(result1["Текущий возраст"].min(), result1["Текущий возраст"].max()+h, h)
+bins.append(int(result["Текущий возраст"].max())+1)
 labels = np.arange(1, len(bins))
 #добавляем метки интервалов возрастов в датасет
 result1["Интервал по возрасту"] = pd.cut(result1["Текущий возраст"], bins=bins,
