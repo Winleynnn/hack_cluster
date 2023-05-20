@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\out.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\train_dataset_Росатом\Anonimized\final_Аддитивные технологии.csv">
           <value>
             <Attribute>
@@ -25,6 +32,20 @@
           </value>
         </entry>
         <entry key="\train_dataset_Росатом\Anonimized\final_Водитель спецавтомобиля.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Вывод из эксплуатации объектов использования атомной энергии.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Геодезия.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -73,7 +94,56 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Сварочные технологии.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Сетевое и системное администрирование.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Сметное дело.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\train_dataset_Росатом\Anonimized\final_Управление жизненным циклом.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Фрезерные работы на станках с ЧПУ.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Цифровое ПСР-Предприятие (Lean Smart Plant).csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Электромонтаж.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Электроника.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -123,6 +193,55 @@
           </value>
         </entry>
         <entry key="\train_dataset_Росатом\Anonimized\Вывод из эксплуатации объектов использования атомной энергии.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\Инженерное проектирование.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\Радиационный контроль.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\Сетевое и системное администрирование.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\Сметное дело.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\Строительный контроль.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\Технологии композитов.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\Технологические системы энергетических объектов.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
