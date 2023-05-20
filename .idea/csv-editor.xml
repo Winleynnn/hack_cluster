@@ -80,6 +80,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\train_dataset_Росатом\Anonimized\final_Корпоративная защита от внутренних угроз информационной безопасности.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\train_dataset_Росатом\Anonimized\final_Промышленная механика и монтаж.csv">
           <value>
             <Attribute>
