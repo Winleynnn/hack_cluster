@@ -3,8 +3,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 
-df = pd.read_csv("C://Users/Dmitriy/Desktop/out_final.csv")
-df_out = pd.read_csv("C://Users/Dmitriy/Desktop/out2.csv")
+df = pd.read_csv("out_final.csv")
+df_out = pd.read_csv("out2.csv")
 df['number_of_teammates'] = df_out['4']
 
 app = Dash(__name__)
@@ -19,7 +19,7 @@ app.layout = html.Div([
                 dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex', value = 'Все')
             ],style={'width':'25%','position':'fixed'}),
             html.Div([
-                dcc.Dropdown(df['Категория'].unique().delete('null'), id = 'categories', value = ['Студент', 'Инженер'], multi=True),
+                dcc.Dropdown(df['Категория'].unique(), id = 'categories', value = ['Студент', 'Инженер'], multi=True),
                 dcc.Graph(id='category_graph'),            
                 dcc.Dropdown(df['Список компетенций'].unique(), id = "competence", value = ['Сварочные технологии; ','Инженер-конструктор; '], multi=True),
                 dcc.Graph(id='comp_graph'),
