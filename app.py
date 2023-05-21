@@ -2,8 +2,16 @@ from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+import io
+import base64
 
-df = pd.read_excel("final2_data2.xlsx")
+df = pd.read_excel("cluster_data.xlsx")
 
 app = Dash(__name__)
 
@@ -68,6 +76,30 @@ app.layout = html.Div([
                 dcc.Dropdown(df['Профессия'].unique(), id = "prof3", value = ['Промышленная автоматика','Управление качеством'], multi=True),
                 dcc.Graph(id='prof_graph3'),
             ], style={'width':'75%', 'marginLeft':'25%'})
+        ]),
+        dcc.Tab(label="Кластеризация", children=[
+            html.Div([    
+                html.Div([dcc.Dropdown([1,2],id='help')],style={'display':'none'}),
+                html.Img(id='cluster'),
+                html.H3(id='sil')
+                ], style={'margin':'0 auto', 'textAlign':'center'})
+            # html.Div(children=[
+            #         html.H2(['Фильтр по типу участия']),
+            #         dcc.RadioItems(['Все','Команда','Одиночка'], id = "status4", value = 'Все'),
+            #         html.H2(['Фильтр по полу']),
+            #         dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex4', value = 'Все'),
+            #         html.H2(['Интервал по возрасту']),
+            #         dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age4'),
+            #         html.H2(['Интервал по кластеру']),
+            #         dcc.RangeSlider(0, 2, 1, count=1, value=[0, 2], id = 'cluster_slide')
+            # ],style={'width':'25%','position':'fixed'}),
+            # html.Div([
+            #     dcc.Dropdown(df['Категория'].unique(),id = 'categories4', value = ['Студент', 'Инженер'], multi=True),
+            #     dcc.Dropdown(df['Список компетенций'].unique(), id = "competence4", value = ['Сварочные технологии; ','Инженер-конструктор; '], multi=True),
+            #     dcc.Dropdown(df['Образование'].unique(), id = "education4", value = ['Бакалавриат','Специалитет'], multi=True),
+            #     dcc.Dropdown(df['Профессия'].unique(), id = "prof4", value = ['Промышленная автоматика','Управление качеством'], multi=True),
+            #     dcc.Graph(id='cluster_graph')
+            # ], style={'width':'75%', 'marginLeft':'25%'})
         ])
     ])
 ])
@@ -615,6 +647,64 @@ def age_cat(value, status, sex, age):
     fig.update_layout(xaxis_title = "Номер интервала", yaxis_title='Показатели', title='Гистограмма распределения показателей участников по возрасту')
     return fig
 
+#===================================================================================================================================================
+# claster ########################################################################################################################################
+#===================================================================================================================================================
+
+# @callback(
+#     Output('cluster_graph', 'figure'),
+#     Input('categories4', 'value'),
+#     Input('competence4','value'),
+#     Input('education4','value'),
+#     Input('prof4','value'),
+#     Input('status','value'),
+#     Input('sex','value'),
+#     Input('age', 'value')
+# )
+
+@callback(
+        Output('cluster','src'),
+        Output('sil','children'),
+        Input('help','value')
+)
+
+def clust_main(value):
+    X = df[['Текущий возраст', 'summary_rez']]
+    X = X.dropna()
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    kmeans = KMeans(n_clusters=3, init='random', n_init=20, max_iter=5)
+    clusters = kmeans.fit_predict(X_scaled)
+
+    plt.figure(figsize=(10, 5))
+    scatter = plt.scatter(X['Текущий возраст'], X['summary_rez'], c=clusters, cmap='viridis')
+    plt.xlabel('Age')
+    plt.ylabel('Received Points')
+    plt.title('Clustering based on KMeans')
+    legend_handles = []
+    unique_clusters = np.unique(clusters)
+
+    for cluster_label in unique_clusters:
+        if cluster_label == -1:
+            legend_label = 'Noise'
+            color = scatter.cmap(scatter.norm(cluster_label))
+        else:
+            legend_label = f'Cluster {cluster_label}'
+            color = scatter.cmap(scatter.norm(cluster_label))
+        legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', label=legend_label, markerfacecolor=color, markersize=8))
+
+    plt.legend(handles=legend_handles, title='Clusters')
+    plt.colorbar(scatter, label='Cluster')
+    # plt.show()
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png")
+    plt.close()
+    data = base64.b64encode(buf.getbuffer()).decode("utf8")
+    buf.close()
+    silhouette = silhouette_score(X_scaled, clusters)
+    calinski_harabasz = calinski_harabasz_score(X_scaled, clusters)
+    return "data:image/png;base64,{}".format(data), 'Silhouette score = ' + str(silhouette)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
