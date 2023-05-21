@@ -16,7 +16,7 @@ app.layout = html.Div([
                 html.H2(['Фильтр по полу']),
                 dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex', value = 'Все'),
                 html.H2(['Интервал по возрасту']),
-                dcc.RangeSlider(0, 9, 1, count=1, value=[1, 8], id = 'age')
+                dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age')
             ],style={'width':'25%','position':'fixed'}),
             html.Div([
                 dcc.Dropdown(df['Категория'].unique(), id = 'categories', value = ['Студент', 'Инженер'], multi=True),
@@ -36,7 +36,7 @@ app.layout = html.Div([
                     html.H2(['Фильтр по полу']),
                     dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex2', value = 'Все'),
                     html.H2(['Интервал по возрасту']),
-                    dcc.RangeSlider(1, 8, 1, count=1, value=[1, 8], id = 'age2')
+                    dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age2')
             ],style={'width':'25%','position':'fixed'}),
             html.Div([
                 dcc.Dropdown(df['Категория'].unique(),id = 'categories2', value = ['Студент', 'Инженер'], multi=True),
@@ -54,11 +54,13 @@ app.layout = html.Div([
                     html.H2(['Фильтр по типу участия']),
                     dcc.RadioItems(['Все','Команда','Одиночка'], id = "status3", value = 'Все'),
                     html.H2(['Фильтр по полу']),
-                    dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex3', value = 'Все')
+                    dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex3', value = 'Все'),
+                    html.H2(['Интервал по возрасту']),
+                    dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age3')
             ],style={'width':'25%','position':'fixed'}),
             html.Div([
                 dcc.Dropdown(df['Категория'].unique(),id = 'categories3', value = ['Студент', 'Инженер'], multi=True),
-                dcc.Graph(id='category_graph3'),      
+                dcc.Graph(id='category_graph3'),
                 dcc.Dropdown(df['Список компетенций'].unique(), id = "competence3", value = ['Сварочные технологии; ','Инженер-конструктор; '], multi=True),
                 dcc.Graph(id='comp_graph3'),     
                 dcc.Dropdown(df['Образование'].unique(), id = "education3", value = ['Бакалавриат','Специалитет'], multi=True),
@@ -66,9 +68,13 @@ app.layout = html.Div([
                 dcc.Dropdown(df['Профессия'].unique(), id = "prof3", value = ['Промышленная автоматика','Управление качеством'], multi=True),
                 dcc.Graph(id='prof_graph3'),
             ], style={'width':'75%', 'marginLeft':'25%'})
-        ]),
+        ])
     ])
 ])
+
+#===================================================================================================================================================
+# mean #############################################################################################################################################
+#===================================================================================================================================================
 
 @callback(
     Output('category_graph', 'figure'),
@@ -213,7 +219,7 @@ def update_prof(value, status, sex, age):
     return fig
 
 #===================================================================================================================================================
-####################################################################################################################################################
+# count ############################################################################################################################################
 #===================================================================================================================================================
 
 @callback(
@@ -225,7 +231,6 @@ def update_prof(value, status, sex, age):
 )
 def update_category(value, status, sex, age):
     df_test = pd.DataFrame(columns=['Name','Sum'])
-    # df[Категория==Студент] <- пол, тип участия
     stat = 'All'
     gender = 'All'
     if (status != 'Все'):
@@ -241,27 +246,40 @@ def update_category(value, status, sex, age):
     if ((stat == 'All') & (gender == 'All')):
         for s in value:
             df_test.loc[len(df_test.index)] = [s, df[(df['Категория']==s) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+        fig = go.Figure()
+        fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по категориям', hole=0.3)
+        fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (stat != 'All'):
         if (gender == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Категория']==s)&(df['comp_stat']==stat) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по категориям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Категория']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по категориям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (gender != 'All'):
         if (stat == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Категория']==s)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по категориям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Категория']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
-    # if ((status != 'All') & (gender != 'All')):
-    #     for s in value:
-    #         df_test.loc[len(df_test.index)] = [s, df[(df['Категория']==s)&(df['Пол']==gender)&(df['status']==stat)].shape[0]]
-    fig = go.Figure()
-    fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по категориям', hole=0.3)
-    fig.update_traces(textinfo='value', hoverinfo='percent')
-    return fig
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по категориям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
 
 @callback(
     Output('comp_graph2','figure'),
@@ -287,24 +305,40 @@ def update_comp(value, status, sex, age):
     if ((stat == 'All') & (gender == 'All')):
         for s in value:
             df_test.loc[len(df_test.index)] = [s, df[(df['Список компетенций']==s) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+        fig = go.Figure()
+        fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по компетенциям', hole=0.3)
+        fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (stat != 'All'):
         if (gender == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Список компетенций']==s)&(df['comp_stat']==stat) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по компетенциям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Список компетенций']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по компетенциям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (gender != 'All'):
         if (stat == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Список компетенций']==s)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по компетенциям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Список компетенций']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
-    fig = go.Figure()
-    fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по компетенциям', hole=0.3)
-    fig.update_traces(textinfo='value')
-    return fig
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по компетенциям', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
 
 @callback(
     Output('edu_graph2', 'figure'),
@@ -330,24 +364,40 @@ def update_edu(value, status, sex, age):
     if ((stat == 'All') & (gender == 'All')):
         for s in value:
             df_test.loc[len(df_test.index)] = [s, df[(df['Образование']==s) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+        fig = go.Figure()
+        fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по образованию', hole=0.3)
+        fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (stat != 'All'):
         if (gender == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Образование']==s)&(df['comp_stat']==stat) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по образованию', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Образование']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по образованию', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (gender != 'All'):
         if (stat == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Образование']==s)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по образованию', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Образование']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
-    fig = go.Figure()
-    fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по образованию', hole=0.3)
-    fig.update_traces(textinfo='value')
-    return fig
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по образованию', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
 
 @callback(
     Output('prof_graph2', 'figure'),
@@ -374,29 +424,196 @@ def update_prof(value, status, sex, age):
     if ((stat == 'All') & (gender == 'All')):
         for s in value:
             df_test.loc[len(df_test.index)] = [s, df[(df['Профессия']==s) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+        fig = go.Figure()
+        fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по профессии', hole=0.3)
+        fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (stat != 'All'):
         if (gender == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Профессия']==s)&(df['comp_stat']==stat) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по профессии', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Профессия']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по профессии', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+        return fig
     if (gender != 'All'):
         if (stat == 'All'):
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Профессия']==s)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по профессии', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
         else:
             for s in value:
                 df_test.loc[len(df_test.index)] = [s, df[(df['Профессия']==s)&(df['comp_stat']==stat)&(df['Пол']==gender) & (df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])].shape[0]]
+            fig = go.Figure()
+            fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по профессии', hole=0.3)
+            fig.update_traces(textinfo='value', hoverinfo='percent')
+            return fig
+
+#===================================================================================================================================================
+# age_group ########################################################################################################################################
+#===================================================================================================================================================
+
+@callback(
+    Output('comp_graph3', 'figure'),
+    Input('competence3', 'value'),
+    Input('status3','value'),
+    Input('sex3','value'),
+    Input('age3', 'value')
+)
+
+def age_cat(value, status, sex, age):
+    df_test = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
+    dff = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
     fig = go.Figure()
-    fig = px.pie(df_test, values='Sum', names='Name', title='Количество участников по профессии', hole=0.3)
-    fig.update_traces(textinfo='value')
+    if (status == 'Команда'):
+        dff = df[df['comp_stat']=='t']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    elif (status == 'Одиночка'):
+        dff = df[df['comp_stat']=='s']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    else:
+        if (sex == 'Мужской'):
+            dff = df[df['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = df[df['Пол']==1]
+    for s in value:
+        dfff = dff[dff['Список компетенций']==s]
+        new_df = dfff.groupby('Интервал по возрасту')['ФИО'].count()
+        new_df2 = dfff.groupby('Интервал по возрасту')['summary_rez'].mean()
+        fig.add_trace(go.Histogram(x=dfff['Текущий возраст'], y=dfff['summary_rez'], name=(s  + " ср. балл"), texttemplate="Ср. балл: %{x}"))
+        # fig.add_trace(go.Histogram(x=new_df.index.values, y=new_df.values.tolist(), name=(s + " кол."), texttemplate="Участники: %{y}"))
+    fig.update_layout(xaxis_title = "Номер интервала", yaxis_title='Показатели', title='Гистограмма распределения показателей участников по возрасту')
     return fig
 
-#===================================================================================================================================================
-####################################################################################################################################################
-#===================================================================================================================================================
+@callback(
+    Output('edu_graph3', 'figure'),
+    Input('education3', 'value'),
+    Input('status3','value'),
+    Input('sex3','value'),
+    Input('age3', 'value')
+)
 
+def age_cat(value, status, sex, age):
+    df_test = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
+    dff = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
+    fig = go.Figure()
+    if (status == 'Команда'):
+        dff = df[df['comp_stat']=='t']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    elif (status == 'Одиночка'):
+        dff = df[df['comp_stat']=='s']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    else:
+        if (sex == 'Мужской'):
+            dff = df[df['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = df[df['Пол']==1]
+    for s in value:
+        dfff = dff[dff['Образование']==s]
+        new_df = dfff.groupby('Интервал по возрасту')['ФИО'].count()
+        new_df2 = dfff.groupby('Интервал по возрасту')['summary_rez'].mean()
+        fig.add_trace(go.Histogram(x=dfff['Текущий возраст'], y=dfff['summary_rez'], name=(s  + " ср. балл"), texttemplate="Ср. балл: %{x}"))
+        # fig.add_trace(go.Histogram(x=new_df.index.values, y=new_df.values.tolist(), name=(s + " кол."), texttemplate="Участники: %{y}"))
+    fig.update_layout(xaxis_title = "Номер интервала", yaxis_title='Показатели', title='Гистограмма распределения показателей участников по возрасту')
+    return fig
+
+@callback(
+    Output('prof_graph3', 'figure'),
+    Input('prof3', 'value'),
+    Input('status3','value'),
+    Input('sex3','value'),
+    Input('age3', 'value')
+)
+
+def age_cat(value, status, sex, age):
+    df_test = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
+    dff = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
+    fig = go.Figure()
+    if (status == 'Команда'):
+        dff = df[df['comp_stat']=='t']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    elif (status == 'Одиночка'):
+        dff = df[df['comp_stat']=='s']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    else:
+        if (sex == 'Мужской'):
+            dff = df[df['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = df[df['Пол']==1]
+    for s in value:
+        dfff = dff[dff['Профессия']==s]
+        new_df = dfff.groupby('Интервал по возрасту')['ФИО'].count()
+        new_df2 = dfff.groupby('Интервал по возрасту')['summary_rez'].mean()
+        fig.add_trace(go.Histogram(x=dfff['Текущий возраст'], y=dfff['summary_rez'], name=(s  + " ср. балл"), texttemplate="Ср. балл: %{x}"))
+        # fig.add_trace(go.Histogram(x=new_df.index.values, y=new_df.values.tolist(), name=(s + " кол."), texttemplate="Участники: %{y}"))
+    fig.update_layout(xaxis_title = "Номер интервала", yaxis_title='Показатели', title='Гистограмма распределения показателей участников по возрасту')
+    return fig
+
+@callback(
+    Output('category_graph3', 'figure'),
+    Input('categories3', 'value'),
+    Input('status3','value'),
+    Input('sex3','value'),
+    Input('age3', 'value')
+)
+
+def age_cat(value, status, sex, age):
+    df_test = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
+    dff = df[(df['Интервал по возрасту']>=age[0])&(df['Интервал по возрасту']<=age[1])]
+    fig = go.Figure()
+    if (status == 'Команда'):
+        dff = df[df['comp_stat']=='t']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    elif (status == 'Одиночка'):
+        dff = df[df['comp_stat']=='s']
+        if (sex == 'Мужской'):
+            dff = dff[dff['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = dff[dff['Пол']==1]
+    else:
+        if (sex == 'Мужской'):
+            dff = df[df['Пол']==0]
+        elif (sex == 'Женский'):
+            dff = df[df['Пол']==1]
+    for s in value:
+        dfff = dff[dff['Категория']==s]
+        new_df = dfff.groupby('Интервал по возрасту')['ФИО'].count()
+        new_df2 = dfff.groupby('Интервал по возрасту')['summary_rez'].mean()
+        fig.add_trace(go.Histogram(x=dfff['Текущий возраст'], y=dfff['summary_rez'], name=(s  + " ср. балл"), texttemplate="Ср. балл: %{x}"))
+        # fig.add_trace(go.Histogram(x=new_df.index.values, y=new_df.values.tolist(), name=(s + " кол."), texttemplate="Участники: %{y}"))
+    fig.update_layout(xaxis_title = "Номер интервала", yaxis_title='Показатели', title='Гистограмма распределения показателей участников по возрасту')
+    return fig
 
 
 if __name__ == '__main__':
