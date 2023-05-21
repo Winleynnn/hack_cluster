@@ -168,13 +168,13 @@ for i in range(n):
     second = x + h
     bins.append(math.ceil(x))
     x = second
-bins.append(int(result["Текущий возраст"].max())+1)
+bins.append(int(result1["Текущий возраст"].max())+1)
 labels = np.arange(1, len(bins))
 #добавляем метки интервалов возрастов в датасет
 result1["Интервал по возрасту"] = pd.cut(result1["Текущий возраст"], bins=bins,
                         labels=labels, right=False)
 #удаляем лишние переменные
-# result1.drop(columns=['Unnamed: 0', 'name'], axis=1, inplace=True)
+#result1.drop(columns=['Unnamed: 0', 'name'], axis=1, inplace=True)
 #сохраняем файл
 filepath = Path('final2_data2.xlsx')
 filepath.parent.mkdir(parents=True, exist_ok=True)
@@ -188,19 +188,23 @@ import re
 # # print(df2)
 # # df[(df == 'banana').any(axis=1)]
 
+from sklearn.metrics import silhouette_score
+from sklearn.metrics import calinski_harabasz_score
 
 # df2 = df2[df2['summary_rez'].notna()]
 X = result1[['Текущий возраст', 'summary_rez']]
 X = X.dropna()
-k = 4  # Number of clusters
+k = 6  # Number of clusters
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 kmeans = KMeans(n_clusters=k)
-clusters = kmeans.fit_predict(X)
-# result1= result1.astype({'Results': 'float'}).dtypes
+clusters = kmeans.fit_predict(X_scaled)
+print(clusters)
 plt.figure(figsize=(10, 5))
 scatter = plt.scatter(X['Текущий возраст'], X['summary_rez'], c=clusters, cmap='viridis')
 plt.xlabel('Age')
 plt.ylabel('Received Points')
-plt.title('Clustering based on Age and Received Points')
+plt.title('Clustering based on KMeans')
 legend_handles = []
 unique_clusters = np.unique(clusters)
 # print(unique_clusters)
@@ -216,18 +220,25 @@ for cluster_label in unique_clusters:
 plt.legend(handles=legend_handles, title='Clusters')
 plt.colorbar(scatter, label='Cluster')
 plt.show()
-plt.show()
+silhouette = silhouette_score(X_scaled, clusters)
+calinski_harabasz = calinski_harabasz_score(X_scaled, clusters)
+print(f'KMean sil: {silhouette}')
+print(f'KMean cal_h: {calinski_harabasz}')
 
+result1['Cluster'] = pd.Series(clusters)
+filepath = Path('cluster_data.xlsx')
+filepath.parent.mkdir(parents=True, exist_ok=True)
+result1.to_excel(filepath)
 
-
+X_e = result1[['Текущий возраст', 'summary_rez', 'Образование']]
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
-
+#
 # Perform clustering using DBSCAN
 eps = 0.5  # Maximum distance between two samples to be considered in the same neighborhood
-min_samples = 2  # Minimum number of samples in a neighborhood for a data point to be considered as a core point
+min_samples = 4  # Minimum number of samples in a neighborhood for a data point to be considered as a core point
 dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-clusters = dbscan.fit_predict(X_scaled)
+clusters = dbscan.fit_predict(X)
 
 # Visualize initial and received values
 plt.figure(figsize=(10, 5))
@@ -252,3 +263,149 @@ for cluster_label in unique_clusters:
 plt.legend(handles=legend_handles, title='Clusters')
 plt.colorbar(scatter, label='Cluster')
 plt.show()
+
+silhouette = silhouette_score(X_scaled, clusters)
+calinski_harabasz = calinski_harabasz_score(X_scaled, clusters)
+print(f'DBSCAN sil: {silhouette}')
+print(f'DBSCAN cal_h: {calinski_harabasz}')
+
+
+from sklearn.cluster import SpectralClustering
+# print(X_scaled)
+n_clusters = 6  # Number of clusters
+spectral_clustering = SpectralClustering(n_clusters=4, affinity='rbf', gamma=120, random_state=42)
+clusters = spectral_clustering.fit_predict(X)
+
+silhouette = silhouette_score(X_scaled, clusters)
+calinski_harabasz = calinski_harabasz_score(X_scaled, clusters)
+print(f'Stectral sil: {silhouette}')
+print(f'Spectral cal_h: {calinski_harabasz}')
+plt.figure(figsize=(10, 5))
+scatter = plt.scatter(X['Текущий возраст'], X['summary_rez'], c=clusters, cmap='viridis')
+plt.xlabel('Age')
+plt.ylabel('Received Points')
+plt.title('Clustering based on Spectral clustering')
+legend_handles = []
+unique_clusters = np.unique(clusters)
+# print(unique_clusters)
+for cluster_label in unique_clusters:
+    if cluster_label == -1:
+        legend_label = 'Noise'
+        color = scatter.cmap(scatter.norm(cluster_label))
+    else:
+        legend_label = f'Cluster {cluster_label}'
+        color = scatter.cmap(scatter.norm(cluster_label))
+    legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', label=legend_label, markerfacecolor=color, markersize=8))
+plt.legend(handles=legend_handles, title='Clusters')
+plt.colorbar(scatter, label='Cluster')
+plt.show()
+
+from sklearn.cluster import OPTICS
+plt.figure(figsize=(10, 5))
+scatter = plt.scatter(X['Текущий возраст'], X['summary_rez'], c=clusters, cmap='viridis')
+plt.xlabel('Age')
+plt.ylabel('Received Points')
+plt.title('Clustering based on Age and Received Points (DBSCAN)')
+clusters = OPTICS(min_samples=2).fit_predict(X)
+legend_handles = []
+unique_clusters = np.unique(clusters)
+# print(unique_clusters)
+for cluster_label in unique_clusters:
+    if cluster_label == -1:
+        legend_label = 'Noise'
+        color = scatter.cmap(scatter.norm(cluster_label))
+    else:
+        legend_label = f'Cluster {cluster_label}'
+        color = scatter.cmap(scatter.norm(cluster_label))
+    legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', label=legend_label, markerfacecolor=color, markersize=8))
+
+plt.legend(handles=legend_handles, title='Clusters')
+plt.colorbar(scatter, label='Cluster')
+plt.show()
+
+silhouette = silhouette_score(X, clusters)
+calinski_harabasz = calinski_harabasz_score(X, clusters)
+print(f'OPTICS sil: {silhouette}')
+print(f'OPTICS cal_h {calinski_harabasz}')
+
+from sklearn.model_selection import GridSearchCV
+# param_grid = {
+#     'n_clusters': [4, 5, 6, 7],
+#     'affinity': ['nearest_neighbors', 'rbf'],
+#     'gamma': [5, 100, 0.01, 110, 120, 130]
+# }
+# best_score = -1
+# best_params = {}
+# for n_clusters in param_grid['n_clusters']:
+#     for affinity in param_grid['affinity']:
+#         for gamma in param_grid['gamma']:
+#             clustering = SpectralClustering(n_clusters=n_clusters, affinity=affinity, gamma=gamma, random_state=42)
+#             labels = clustering.fit_predict(X_scaled)
+#             score = silhouette_score(X_scaled, labels)
+#
+#             if score > best_score:
+#                 best_score = score
+#                 best_params = {'n_clusters': n_clusters, 'affinity': affinity, 'gamma': gamma}
+#
+# # Print the best parameters and score
+# print("Best Parameters:")
+# for key, value in best_params.items():
+#     print(f"{key}: {value}")
+#
+# print(f"Best Silhouette Score: {best_score}")
+
+# Best Parameters:
+# n_clusters: 4
+# affinity: rbf
+# gamma: 120
+# Best Silhouette Score: 0.48953773862258354
+
+
+
+# param_grid = {
+#     'n_clusters': [3, 4, 5, 6],
+#     'init': ['k-means++', 'random'],
+#     'n_init': [5, 10, 15, 20, 25, 30],
+#     'max_iter': [5, 20, 25, 30, 50, 100]
+# }
+#
+# # Perform grid search using Silhouette score
+#
+#
+# best_score = -1
+# best_params = {}
+#
+# # Perform grid search using silhouette score
+# for n_clusters in param_grid['n_clusters']:
+#     for init in param_grid['init']:
+#         for n_init in param_grid['n_init']:
+#             for max_iter in param_grid['max_iter']:
+#                 kmeans = KMeans(n_clusters=n_clusters, init=init, n_init=n_init, max_iter=max_iter, random_state=0)
+#                 labels = kmeans.fit_predict(X_scaled)
+#                 score = silhouette_score(X_scaled, labels)
+#
+#                 if score > best_score:
+#                     best_score = score
+#                     best_params = {'n_clusters': n_clusters, 'init': init, 'n_init': n_init, 'max_iter': max_iter}
+#
+# # Print the best parameters and score
+# print("Best Parameters:")
+# for key, value in best_params.items():
+#     print(f"{key}: {value}")
+#
+# print(f"Best Silhouette Score: {best_score}")
+
+# Best Parameters:
+# n_clusters: 3
+# init: random
+# n_init: 20
+# max_iter: 5
+# Best Silhouette Score: 0.41777840388158494
+
+
+result1['Cluster'] = pd.Series(clusters)
+filepath = Path('cluster_data.xlsx')
+filepath.parent.mkdir(parents=True, exist_ok=True)
+result1.to_excel(filepath)
+
+
