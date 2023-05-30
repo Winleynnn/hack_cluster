@@ -27,13 +27,13 @@ app.layout = html.Div([
                 dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age')
             ],style={'width':'25%','position':'fixed'}),
             html.Div([
-                dcc.Dropdown(df['Категория'].unique(), id = 'categories', value = ['Студент', 'Инженер'], multi=True),
+                dcc.Dropdown(df['Категория'].dropna().unique(), id = 'categories', value = ['Студент', 'Инженер'], multi=True),
                 dcc.Graph(id='category_graph'),            
-                dcc.Dropdown(df['Список компетенций'].unique(), id = "competence", value = ['Сварочные технологии; ','Инженер-конструктор; '], multi=True),
+                dcc.Dropdown(df['Список компетенций'].dropna().unique(), id = "competence", value = ['Сварочные технологии ','Инженер-конструктор '], multi=True),
                 dcc.Graph(id='comp_graph'),
-                dcc.Dropdown(df['Образование'].unique(), id = "education", value = ['Бакалавриат','Специалитет'], multi=True),
+                dcc.Dropdown(df['Образование'].dropna().unique(), id = "education", value = ['Бакалавриат','Специалитет'], multi=True),
                 dcc.Graph(id='edu_graph'),
-                dcc.Dropdown(df['Профессия'].unique(), id = "prof", value = ['Промышленная автоматика','Управление качеством'], multi=True),
+                dcc.Dropdown(df['Профессия'].dropna().unique(), id = "prof", value = ['Промышленная автоматика','Управление качеством'], multi=True),
                 dcc.Graph(id='prof_graph')
             ], style={'width':'75%', 'marginLeft':'25%'}),
         ]),
@@ -47,13 +47,13 @@ app.layout = html.Div([
                     dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age2')
             ],style={'width':'25%','position':'fixed'}),
             html.Div([
-                dcc.Dropdown(df['Категория'].unique(),id = 'categories2', value = ['Студент', 'Инженер'], multi=True),
+                dcc.Dropdown(df['Категория'].dropna().unique(),id = 'categories2', value = ['Студент', 'Инженер'], multi=True),
                 dcc.Graph(id='category_graph2'),      
-                dcc.Dropdown(df['Список компетенций'].unique(), id = "competence2", value = ['Сварочные технологии; ','Инженер-конструктор; '], multi=True),
+                dcc.Dropdown(df['Список компетенций'].dropna().unique(), id = "competence2", value = ['Сварочные технологии ','Инженер-конструктор '], multi=True),
                 dcc.Graph(id='comp_graph2'),     
-                dcc.Dropdown(df['Образование'].unique(), id = "education2", value = ['Бакалавриат','Специалитет'], multi=True),
+                dcc.Dropdown(df['Образование'].dropna().unique(), id = "education2", value = ['Бакалавриат','Специалитет'], multi=True),
                 dcc.Graph(id='edu_graph2'),        
-                dcc.Dropdown(df['Профессия'].unique(), id = "prof2", value = ['Промышленная автоматика','Управление качеством'], multi=True),
+                dcc.Dropdown(df['Профессия'].dropna().unique(), id = "prof2", value = ['Промышленная автоматика','Управление качеством'], multi=True),
                 dcc.Graph(id='prof_graph2'),
             ], style={'width':'75%', 'marginLeft':'25%'})
         ]),
@@ -67,13 +67,13 @@ app.layout = html.Div([
                     dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age3')
             ],style={'width':'25%','position':'fixed'}),
             html.Div([
-                dcc.Dropdown(df['Категория'].unique(),id = 'categories3', value = ['Студент', 'Инженер'], multi=True),
+                dcc.Dropdown(df['Категория'].dropna().unique(),id = 'categories3', value = ['Студент', 'Инженер'], multi=True),
                 dcc.Graph(id='category_graph3'),
-                dcc.Dropdown(df['Список компетенций'].unique(), id = "competence3", value = ['Сварочные технологии; ','Инженер-конструктор; '], multi=True),
+                dcc.Dropdown(df['Список компетенций'].dropna().unique(), id = "competence3", value = ['Сварочные технологии ','Инженер-конструктор '], multi=True),
                 dcc.Graph(id='comp_graph3'),     
-                dcc.Dropdown(df['Образование'].unique(), id = "education3", value = ['Бакалавриат','Специалитет'], multi=True),
+                dcc.Dropdown(df['Образование'].dropna().unique(), id = "education3", value = ['Бакалавриат','Специалитет'], multi=True),
                 dcc.Graph(id='edu_graph3'),        
-                dcc.Dropdown(df['Профессия'].unique(), id = "prof3", value = ['Промышленная автоматика','Управление качеством'], multi=True),
+                dcc.Dropdown(df['Профессия'].dropna().unique(), id = "prof3", value = ['Промышленная автоматика','Управление качеством'], multi=True),
                 dcc.Graph(id='prof_graph3'),
             ], style={'width':'75%', 'marginLeft':'25%'})
         ]),
