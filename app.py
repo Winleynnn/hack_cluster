@@ -1,9 +1,12 @@
 from dash import Dash, html, dcc, callback, Output, Input, dash_table
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.tools as pt
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 from sklearn.metrics import silhouette_score, calinski_harabasz_score
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
@@ -11,21 +14,23 @@ from sklearn.preprocessing import StandardScaler
 import io
 import base64
 
-df = pd.read_excel("cluster_data.xlsx")
+df = pd.read_excel("cluster_data2.xlsx")
 
 app = Dash(__name__)
 
 app.layout = html.Div([
+    html.Div(children=[
+    html.H2(['Фильтр по типу участия']),
+    dcc.RadioItems(['Все','Команда','Одиночка'], id = "status", value = 'Все'),
+    html.H2(['Фильтр по полу']),
+    dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex', value = 'Все'),
+    html.H2(['Интервал по возрасту']),
+    html.Div([dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age')],
+             style={'width': '90%', 'marginLeft':'-15px'})
+    ],style={'width':'23%','height':'100%','position':'fixed',
+            'borderRight':'2px solid'}),
     dcc.Tabs([
         dcc.Tab(label='Итоговый балл', children=[
-            html.Div(children=[
-                html.H2(['Фильтр по типу участия']),
-                dcc.RadioItems(['Все','Команда','Одиночка'], id = "status", value = 'Все'),
-                html.H2(['Фильтр по полу']),
-                dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex', value = 'Все'),
-                html.H2(['Интервал по возрасту']),
-                dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age')
-            ],style={'width':'25%','position':'fixed'}),
             html.Div([
                 dcc.Dropdown(df['Категория'].dropna().unique(), id = 'categories', value = ['Студент', 'Инженер'], multi=True),
                 dcc.Graph(id='category_graph'),            
@@ -38,14 +43,6 @@ app.layout = html.Div([
             ], style={'width':'75%', 'marginLeft':'25%'}),
         ]),
         dcc.Tab(label="Количество участников", children=[
-            html.Div(children=[
-                    html.H2(['Фильтр по типу участия']),
-                    dcc.RadioItems(['Все','Команда','Одиночка'], id = "status2", value = 'Все'),
-                    html.H2(['Фильтр по полу']),
-                    dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex2', value = 'Все'),
-                    html.H2(['Интервал по возрасту']),
-                    dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age2')
-            ],style={'width':'25%','position':'fixed'}),
             html.Div([
                 dcc.Dropdown(df['Категория'].dropna().unique(),id = 'categories2', value = ['Студент', 'Инженер'], multi=True),
                 dcc.Graph(id='category_graph2'),      
@@ -58,14 +55,6 @@ app.layout = html.Div([
             ], style={'width':'75%', 'marginLeft':'25%'})
         ]),
         dcc.Tab(label="Интервал по возрасту", children=[
-            html.Div(children=[
-                    html.H2(['Фильтр по типу участия']),
-                    dcc.RadioItems(['Все','Команда','Одиночка'], id = "status3", value = 'Все'),
-                    html.H2(['Фильтр по полу']),
-                    dcc.RadioItems(['Все','Мужской','Женский'], id = 'sex3', value = 'Все'),
-                    html.H2(['Интервал по возрасту']),
-                    dcc.RangeSlider(1, 9, 1, count=1, value=[1, 9], id = 'age3')
-            ],style={'width':'25%','position':'fixed'}),
             html.Div([
                 dcc.Dropdown(df['Категория'].dropna().unique(),id = 'categories3', value = ['Студент', 'Инженер'], multi=True),
                 dcc.Graph(id='category_graph3'),
@@ -80,9 +69,11 @@ app.layout = html.Div([
         dcc.Tab(label="Кластеризация", children=[
             html.Div([    
                 html.Div([dcc.Dropdown([1,2],id='help')],style={'display':'none'}),
+                html.Div(['This page is still in beta.'],style={'marginTop':'20px', 'color':'red'}),
                 html.Img(id='cluster'),
+                dcc.Graph(id='graph'),
                 html.H3(id='sil')
-                ], style={'margin':'0 auto', 'textAlign':'center'})
+                ], style={'width':'75%','marginLeft':'25%', 'textAlign':'center'})
             # html.Div(children=[
             #         html.H2(['Фильтр по типу участия']),
             #         dcc.RadioItems(['Все','Команда','Одиночка'], id = "status4", value = 'Все'),
@@ -101,7 +92,7 @@ app.layout = html.Div([
             #     dcc.Graph(id='cluster_graph')
             # ], style={'width':'75%', 'marginLeft':'25%'})
         ])
-    ])
+    ],style={'marginLeft':'25%', 'marginTop':'8px'})
 ])
 
 #===================================================================================================================================================
@@ -257,9 +248,9 @@ def update_prof(value, status, sex, age):
 @callback(
     Output('category_graph2', 'figure'),
     Input('categories2', 'value'),
-    Input('status2','value'),
-    Input('sex2','value'),
-    Input('age2', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 )
 def update_category(value, status, sex, age):
     df_test = pd.DataFrame(columns=['Name','Sum'])
@@ -316,9 +307,9 @@ def update_category(value, status, sex, age):
 @callback(
     Output('comp_graph2','figure'),
     Input('competence2','value'),    
-    Input('status2','value'),
-    Input('sex2','value'),
-    Input('age2', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 )
 def update_comp(value, status, sex, age):
     df_test = pd.DataFrame(columns=['Name','Sum'])
@@ -375,9 +366,9 @@ def update_comp(value, status, sex, age):
 @callback(
     Output('edu_graph2', 'figure'),
     Input('education2', 'value'),
-    Input('status2','value'),
-    Input('sex2','value'),
-    Input('age2', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 )
 def update_edu(value, status, sex, age):
     df_test = pd.DataFrame(columns=['Name','Sum'])
@@ -434,9 +425,9 @@ def update_edu(value, status, sex, age):
 @callback(
     Output('prof_graph2', 'figure'),
     Input('prof2', 'value'),
-    Input('status2','value'),
-    Input('sex2','value'),
-    Input('age2', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 
 )
 def update_prof(value, status, sex, age):
@@ -498,9 +489,9 @@ def update_prof(value, status, sex, age):
 @callback(
     Output('comp_graph3', 'figure'),
     Input('competence3', 'value'),
-    Input('status3','value'),
-    Input('sex3','value'),
-    Input('age3', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 )
 
 def age_cat(value, status, sex, age):
@@ -536,9 +527,9 @@ def age_cat(value, status, sex, age):
 @callback(
     Output('edu_graph3', 'figure'),
     Input('education3', 'value'),
-    Input('status3','value'),
-    Input('sex3','value'),
-    Input('age3', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 )
 
 def age_cat(value, status, sex, age):
@@ -574,9 +565,9 @@ def age_cat(value, status, sex, age):
 @callback(
     Output('prof_graph3', 'figure'),
     Input('prof3', 'value'),
-    Input('status3','value'),
-    Input('sex3','value'),
-    Input('age3', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 )
 
 def age_cat(value, status, sex, age):
@@ -612,9 +603,9 @@ def age_cat(value, status, sex, age):
 @callback(
     Output('category_graph3', 'figure'),
     Input('categories3', 'value'),
-    Input('status3','value'),
-    Input('sex3','value'),
-    Input('age3', 'value')
+    Input('status','value'),
+    Input('sex','value'),
+    Input('age', 'value')
 )
 
 def age_cat(value, status, sex, age):
@@ -663,12 +654,52 @@ def age_cat(value, status, sex, age):
 # )
 
 @callback(
-        Output('cluster','src'),
+        # Output('cluster','src'),
+        Output('graph', 'figure'),
         Output('sil','children'),
         Input('help','value')
 )
 
 def clust_main(value):
+
+    # scatter = go.Figure()
+    # X = df[['Текущий возраст', 'summary_rez']]
+    # X = X.dropna()
+
+    # scaler = StandardScaler()
+    # X_scaled = scaler.fit_transform(X)
+    # kmeans = KMeans(n_clusters=3, init='random', n_init=20, max_iter=5)
+    # clusters = kmeans.fit_predict(X_scaled)
+
+    # legend_handles = []
+    # unique_clusters = np.unique(clusters)
+
+    # for cluster_label in unique_clusters:
+    #     if cluster_label == -1:
+    #         legend_label = 'Noise'
+    #         color = scatter.cmap(scatter.norm(cluster_label))
+    #     else:
+    #         legend_label = f'Cluster {cluster_label}'
+    #         color = scatter.cmap(scatter.norm(cluster_label))
+    #     legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', label=legend_label, markerfacecolor=color, markersize=8))
+    # fig = go.Figure()
+    # cluster0 = df[df['Cluster']==0]
+    # cluster1 = df[df['Cluster']==1]
+    # cluster2 = df[df['Cluster']==2]
+    # fig.add_trace(go.Scatter(x=cluster0['Текущий возраст'], y=cluster0['summary_rez'], mode='markers', marker=dict(color=cluster0['Cluster'])))
+    # fig.add_trace(go.Scatter(x=cluster1['Текущий возраст'], y=cluster1['summary_rez'], mode='markers', marker=dict(color=cluster1['Cluster'])))
+    # fig.add_trace(go.Scatter(x=cluster2['Текущий возраст'], y=cluster2['summary_rez'], mode='markers', marker=dict(color=cluster2['Cluster'])))
+
+    # fig.update_layout(
+    # title='Partitioning into Clusters',
+    # xaxis_title='Age',
+    # yaxis_title='Received Points',
+    # legend_title='Cluster',
+    # )
+
+    # return fig
+
+    
     X = df[['Текущий возраст', 'summary_rez']]
     X = X.dropna()
 
@@ -676,8 +707,8 @@ def clust_main(value):
     X_scaled = scaler.fit_transform(X)
     kmeans = KMeans(n_clusters=3, init='random', n_init=20, max_iter=5)
     clusters = kmeans.fit_predict(X_scaled)
-
-    plt.figure(figsize=(10, 5))
+    
+    f = plt.figure(figsize=(10, 5))
     scatter = plt.scatter(X['Текущий возраст'], X['summary_rez'], c=clusters, cmap='viridis')
     plt.xlabel('Age')
     plt.ylabel('Received Points')
@@ -696,15 +727,21 @@ def clust_main(value):
 
     plt.legend(handles=legend_handles, title='Clusters')
     plt.colorbar(scatter, label='Cluster')
-    # plt.show()
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png")
-    plt.close()
-    data = base64.b64encode(buf.getbuffer()).decode("utf8")
-    buf.close()
     silhouette = silhouette_score(X_scaled, clusters)
-    calinski_harabasz = calinski_harabasz_score(X_scaled, clusters)
-    return "data:image/png;base64,{}".format(data), 'Silhouette score = ' + str(silhouette)
+    figr = pt.mpl_to_plotly(f)
+    plt.close()
+    figr.update_layout(plot_bgcolor='rgb(255,255,255)', template='simple_white')
+    return figr, 'Silhouette score = ' + str(silhouette)
+    # plt.show()
+    # buf = io.BytesIO()
+    # plt.savefig(buf, format="png")
+    # plt.close()
+    # data = base64.b64encode(buf.getbuffer()).decode("utf8")
+    # buf.close()
+    # silhouette = silhouette_score(X_scaled, clusters)
+    # calinski_harabasz = calinski_harabasz_score(X_scaled, clusters)
+    # return "data:image/png;base64,{}".format(data), 'Silhouette score = ' + str(silhouette)
+    #bruh
 
 if __name__ == '__main__':
     app.run_server(debug=True)
